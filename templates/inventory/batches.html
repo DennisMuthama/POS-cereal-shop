@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Batches & Expiry{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Stock overview</h3>
+  <a href="{% url 'inventory:receive_stock' %}" class="btn btn-success">Receive stock</a>
+</div>
+
+<div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-3 mb-4">
+  {% for r in summary %}
+  <div class="col">
+    <div class="card shadow-sm h-100 text-center border-{{ r.health.css }}">
+      <div class="card-body p-3">
+        {% include "inventory/_cereal_icon.html" with cereal=r.cereal size=52 %}
+        <div class="fw-semibold mt-2">{{ r.cereal.name }}</div>
+        <div class="fs-5 fw-bold">{{ r.stock|floatformat:1 }} kg</div>
+        <span class="badge bg-{{ r.health.css }}">{{ r.health.label }}</span>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-muted">Nothing stocked yet. Click "Receive stock" and pick a cereal.</div>
+  {% endfor %}
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h4 class="mb-0">Batches</h4>
+  {% if show_all %}<a href="?" class="btn btn-outline-secondary btn-sm">Hide empty</a>
+  {% else %}<a href="?all=1" class="btn btn-outline-secondary btn-sm">Show empty too</a>{% endif %}
+</div>
+<div class="card shadow-sm"><div class="table-responsive">
+  <table class="table table-sm align-middle mb-0">
+    <thead>
+      <tr><th>Cereal</th><th>Received</th><th>Expires</th><th class="text-end">Received (kg)</th><th class="text-end">Left (kg)</th><th class="text-end">Cost/kg</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for b in batches %}
+      {% with s=b.status_info %}
+      <tr>
+        <td>{{ b.cereal.name }}</td>
+        <td>{{ b.received_date|date:"d M Y" }}</td>
+        <td>{{ b.expiry_date|date:"d M Y" }}{% if b.remaining_kg > 0 %} <small class="text-muted">({{ b.days_to_expiry }} d)</small>{% endif %}</td>
+        <td class="text-end">{{ b.quantity_kg|floatformat:3 }}</td>
+        <td class="text-end">{{ b.remaining_kg|floatformat:3 }}</td>
+        <td class="text-end">{{ b.cost_price_per_kg|floatformat:2 }}</td>
+        <td><span class="badge bg-{{ s.css }}">{{ s.label }}</span></td>
+      </tr>
+      {% endwith %}
+      {% empty %}
+      <tr><td colspan="7" class="text-muted">No stock batches yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block body_class %}layout-public{% endblock %}
+
+{% block shell %}
+<main class="solo-page">
+  <a class="brand" href="{% url 'accounts:idle' %}">
+    <span class="brand-mark">{{ shop_name|first }}</span>
+    <span class="brand-text">{{ shop_name }}</span>
+  </a>
+
+  <section class="sack sack-form">
+    {% include "_messages.html" %}
+    <h1 class="sack-title sack-title-sm">Employee<br>login</h1>
+    <p class="sack-sub">Enter your ID and passcode. You are logged off automatically once the sale is paid.</p>
+
+    <form method="post" autocomplete="off" novalidate>
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div class="mb-3">
+        <label class="form-label" for="{{ form.employee_id.id_for_label }}">Employee ID</label>
+        {{ form.employee_id }}
+        {{ form.employee_id.errors }}
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="{{ form.passcode.id_for_label }}">Passcode</label>
+        {{ form.passcode }}
+        {{ form.passcode.errors }}
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg w-100"><i class="bi bi-box-arrow-in-right me-2"></i>Log in</button>
+    </form>
+
+    <a href="{% url 'accounts:idle' %}" class="btn btn-link mt-2 px-0"><i class="bi bi-arrow-left me-1"></i>Back</a>
+  </section>
+</main>
+{% endblock %}

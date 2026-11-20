@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}New Sale{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <h5 class="mb-3">Popular cereals</h5>
+        <div class="d-flex flex-wrap gap-2">
+          {% for c in popular %}
+            <a href="?cereal={{ c.pk }}" class="btn btn-outline-primary text-start d-flex align-items-center gap-2 py-2">
+              {% include "inventory/_cereal_icon.html" with cereal=c size=40 %}
+              <span>{{ c.name }}<br><small>KES {{ c.price_per_kg|floatformat:2 }}/kg</small></span>
+            </a>
+          {% empty %}
+            <span class="text-muted">No cereals in stock yet. Ask the owner to receive stock.</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">Add to sale</h5>
+        <form method="post" action="{% url 'sales:add_item' %}" class="row g-3">
+          {% csrf_token %}
+          <div class="col-md-7">
+            <label class="form-label" for="{{ form.cereal.id_for_label }}">Cereal</label>
+            {{ form.cereal }}
+          </div>
+          <div class="col-md-5">
+            <label class="form-label" for="{{ form.quantity_kg.id_for_label }}">{{ form.quantity_kg.label }}</label>
+            {{ form.quantity_kg }}
+          </div>
+          <div class="col-12">
+            <button class="btn btn-primary btn-lg">Add</button>
+            <small class="text-muted ms-2">Type 0.5 for 500 g.</small>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">Current sale</h5>
+        <table class="table table-sm align-middle">
+          <thead><tr><th>Cereal</th><th class="text-end">Kg</th><th class="text-end">Total</th><th></th></tr></thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>{{ item.cereal.name }}<br><small class="text-muted">@ {{ item.unit_price|floatformat:2 }}</small></td>
+              <td class="text-end">{{ item.quantity_kg|floatformat:3 }}</td>
+              <td class="text-end">{{ item.line_total|floatformat:2 }}</td>
+              <td class="text-end">
+                <form method="post" action="{% url 'sales:remove_item' item.pk %}">{% csrf_token %}
+                  <button class="btn btn-sm btn-outline-danger">&times;</button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-muted">Nothing added yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="d-flex justify-content-between fs-4 fw-bold border-top pt-2 mb-3">
+          <span>Total</span><span>KES {{ sale.total|floatformat:2 }}</span>
+        </div>
+        {% if items %}
+          <a href="{% url 'sales:pay' %}" class="btn btn-success btn-lg w-100">Proceed to payment</a>
+        {% endif %}
+        <a href="{% url 'accounts:logout' %}" class="btn btn-link text-danger w-100 mt-2">Cancel sale and log off</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  var qty = document.getElementById("id_quantity_kg");
+  if (qty) { qty.focus(); }
+</script>
+{% endblock %}

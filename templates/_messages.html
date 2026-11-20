@@ -1,0 +1,6 @@
+{% for message in messages %}
+  <div class="alert alert-{{ message.tags }} d-flex align-items-start gap-2" role="alert">
+    <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'danger' %}bi-exclamation-octagon-fill{% elif message.tags == 'warning' %}bi-exclamation-triangle-fill{% else %}bi-info-circle-fill{% endif %}"></i>
+    <div>{{ message }}</div>
+  </div>
+{% endfor %}

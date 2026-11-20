@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div>
+    <h3 class="mb-1">Habari, {{ user.full_name.split.0 }}</h3>
+    <div class="text-muted">
+      {% if period == "day" %}Today, {{ start|date:"l, j F Y" }}
+      {% elif period == "week" %}This week: {{ start|date:"j M" }} to {{ end|date:"j M Y" }}
+      {% elif period == "month" %}This month: {{ start|date:"F Y" }}
+      {% else %}This year: {{ start|date:"Y" }}{% endif %}
+    </div>
+  </div>
+  <div class="segmented" role="group" aria-label="Time period">
+    {% for code, label in periods %}
+      <a href="?period={{ code }}" class="seg {% if period == code %}active{% endif %}" {% if period == code %}aria-current="true"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="status-strip status-{{ banner.css }}">
+  <i class="bi {% if banner.css == 'success' %}bi-check-circle-fill{% elif banner.css == 'warning' %}bi-exclamation-triangle-fill{% else %}bi-exclamation-octagon-fill{% endif %}"></i>
+  <span>{{ banner.text }}</span>
+  {% if flag_total %}<a href="{% url 'reports:anomalies' %}" class="ms-auto fw-semibold">Review</a>{% endif %}
+</div>
+
+<!-- ================= KPIs (follow the period) ================= -->
+<div class="row g-3 mb-4">
+  <div class="col-12 col-lg-5">
+    <div class="kpi kpi-hero">
+      <div class="kpi-label">Sales {{ noun }}</div>
+      <div class="kpi-value">KES {{ total|floatformat:"2g" }}</div>
+      {% if change is not None %}
+        <span class="chip {% if change >= 0 %}chip-up{% else %}chip-down{% endif %}">
+          <i class="bi {% if change >= 0 %}bi-arrow-up-right{% else %}bi-arrow-down-right{% endif %}"></i>{{ change_abs }}% vs {{ prev_noun }}
+        </span>
+      {% else %}
+        <span class="chip chip-flat">No sales {{ prev_noun }} to compare</span>
+      {% endif %}
+      <div class="kpi-sub">{{ prev_noun|capfirst }}: KES {{ prev_total|floatformat:"2g" }}</div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-7">
+    <div class="row g-3">
+      <div class="col-sm-6">
+        <div class="kpi">
+          <div class="kpi-label">Transactions {{ noun }}</div>
+          <div class="kpi-value">{{ sales_count }}</div>
+          <div class="kpi-sub">Average sale KES {{ average|floatformat:"2g" }}</div>
+          <div class="kpi-sub">{{ prev_noun|capfirst }}: {{ prev_count }}</div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="kpi">
+          <div class="kpi-label">Estimated profit {{ noun }}</div>
+          <div class="kpi-value">KES {{ profit|floatformat:"2g" }}</div>
+          <div class="kpi-sub">Wastage {{ noun }}: {{ waste.kg|default:0|floatformat:3 }} kg (KES {{ waste.value|default:0|floatformat:"2g" }})</div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="kpi">
+          <div class="kpi-label">How it was paid {{ noun }}</div>
+          <div class="paybar" role="img" aria-label="Payment split">
+            <span class="pb-cash" style="width: {% widthratio split.CASH|default:0 total 100 %}%"></span>
+            <span class="pb-mpesa" style="width: {% widthratio split.MPESA|default:0 total 100 %}%"></span>
+            <span class="pb-card" style="width: {% widthratio split.CARD|default:0 total 100 %}%"></span>
+          </div>
+          <div class="paylegend">
+            <span><i class="sw sw-cash"></i>Cash <b>{{ split.CASH|default:0|floatformat:"2g" }}</b></span>
+            <span><i class="sw sw-mpesa"></i>M-Pesa <b>{{ split.MPESA|default:0|floatformat:"2g" }}</b></span>
+            <span><i class="sw sw-card"></i>Card <b>{{ split.CARD|default:0|floatformat:"2g" }}</b></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= Trend ================= -->
+<div class="card shadow-sm mb-4"><div class="card-body p-4">
+  <div class="d-flex justify-content-between align-items-baseline mb-3">
+    <h5 class="mb-0">{{ trend_label }}</h5>
+    <small class="text-muted">Hover a bar for the amount</small>
+  </div>
+  <div class="chart">
+    {% for b in trend %}
+      <div class="chart-col" title="{{ b.label }}: KES {{ b.value|floatformat:'2g' }}">
+        <div class="chart-bar {% if not b.value %}empty{% endif %}" style="height: {{ b.pct }}%"></div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="chart-labels">
+    {% for b in trend %}<span>{{ b.label }}</span>{% endfor %}
+  </div>
+</div></div>
+
+<!-- ================= Attention and stock (right now) ================= -->
+<div class="row g-3 mb-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm h-100"><div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-baseline mb-2">
+        <h5 class="mb-0">Needs your attention <small class="text-muted fw-normal">right now</small></h5>
+        <a href="{% url 'reports:anomalies' %}">View all ({{ flag_total }})</a>
+      </div>
+      {% for a in flags %}
+      <div class="flag-item">
+        <span class="badge bg-{{ a.css }}">{{ a.get_severity_display }}</span> {{ a.message }}
+        <form method="post" action="{% url 'reports:anomaly_review' a.pk %}" class="d-flex gap-2 mt-2">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <input name="note" class="form-control form-control-sm" placeholder="Add a note (optional)">
+          <button class="btn btn-sm btn-outline-success">Reviewed</button>
+        </form>
+      </div>
+      {% empty %}
+      <p class="text-muted mb-0 py-3">Nothing to review. Everything matches.</p>
+      {% endfor %}
+    </div></div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card shadow-sm h-100"><div class="card-body p-4">
+      <h5 class="mb-2">Stock health <small class="text-muted fw-normal">right now</small></h5>
+      <div class="stock-list">
+        {% for r in stock_rows %}
+        <div class="stock-tile">
+          <span class="stock-icon">{% include "inventory/_cereal_icon.html" with cereal=r.cereal size=32 %}</span>
+          <div class="stock-info">
+            <div class="stock-name">{{ r.cereal.name }}</div>
+            <div class="stock-kg">{{ r.stock|floatformat:"1g" }} kg</div>
+          </div>
+          <span class="badge bg-{{ r.health.css }}">{{ r.health.label }}</span>
+        </div>
+        {% empty %}
+        <p class="text-muted py-3 mb-0">No cereals stocked yet. Use Receive stock to start.</p>
+        {% endfor %}
+      </div>
+      <div class="text-muted small mt-3">On shift now:
+        {% for s in on_shift %}{{ s.employee.full_name }}{% if not forloop.last %}, {% endif %}{% empty %}nobody{% endfor %}
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- ================= Staff and top sellers (follow the period) ================= -->
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <h5 class="mb-3">Staff {{ noun }}</h5>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead><tr><th>Employee</th><th class="text-end">Hours</th><th class="text-end">Sales</th><th class="text-end">Total (KES)</th><th class="text-end">Abandoned</th><th class="text-end">Voids</th><th class="text-end">Open flags</th></tr></thead>
+          <tbody>
+            {% for s in staff %}
+            <tr>
+              <td>{{ s.emp.full_name }} <small class="text-muted">{{ s.emp.employee_id }}</small></td>
+              <td class="text-end">{{ s.hours }}</td>
+              <td class="text-end">{{ s.sales }}</td>
+              <td class="text-end">{{ s.total|floatformat:"2g" }}</td>
+              <td class="text-end">{{ s.abandoned }}</td>
+              <td class="text-end">{{ s.voids }}</td>
+              <td class="text-end">{% if s.flags %}<span class="badge bg-danger">{{ s.flags }}</span>{% else %}-{% endif %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <h5 class="mb-3">Top sellers {{ noun }}</h5>
+      <table class="table table-sm mb-4">
+        {% for t in top_sellers %}
+        <tr><td>{{ t.cereal__name }}</td><td class="text-end">{{ t.kg|floatformat:2 }} kg</td><td class="text-end">KES {{ t.amount|floatformat:"2g" }}</td></tr>
+        {% empty %}
+        <tr><td class="text-muted">No sales {{ noun }}.</td></tr>
+        {% endfor %}
+      </table>
+      <h6>Slow movers <small class="text-muted fw-normal">in stock, no sales in 14 days</small></h6>
+      <div>{% for c in slow %}<span class="badge bg-secondary me-1 mb-1">{{ c.name }}</span>{% empty %}<span class="text-muted">None</span>{% endfor %}</div>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Receipt{% endblock %}
+
+{% block content %}
+<div class="alert alert-success text-center no-print">Payment received. You have been logged off.</div>
+{% include "sales/_receipt.html" %}
+<div class="d-flex justify-content-center gap-2 mt-3 no-print">
+  <button class="btn btn-outline-dark btn-lg" onclick="window.print()">Print receipt</button>
+  <a href="{% url 'sales:receipt_clear' %}" class="btn btn-primary btn-lg">Next customer</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  setTimeout(function () { window.location.href = "{% url 'sales:receipt_clear' %}"; }, 60000);
+</script>
+{% endblock %}

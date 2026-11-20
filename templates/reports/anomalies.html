@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Anomalies{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Anomalies &amp; Flags</h3>
+  <div class="btn-group">
+    <a href="?show=new" class="btn btn-outline-secondary {% if show == 'new' %}active{% endif %}">New</a>
+    <a href="?show=reviewed" class="btn btn-outline-secondary {% if show == 'reviewed' %}active{% endif %}">Reviewed</a>
+    <a href="?show=all" class="btn btn-outline-secondary {% if show == 'all' %}active{% endif %}">All</a>
+  </div>
+</div>
+
+<ul class="list-group shadow-sm">
+  {% for a in anomalies %}
+  <li class="list-group-item">
+    <div class="d-flex justify-content-between">
+      <div>
+        <span class="badge bg-{{ a.css }}">{{ a.get_severity_display }}</span> {{ a.message }}
+        <div class="small text-muted">{{ a.created_at|date:"d M Y H:i" }}{% if a.employee %} &middot; {{ a.employee.full_name }}{% endif %}</div>
+        {% if a.status == "REVIEWED" %}
+          <div class="small text-success">Reviewed by {{ a.reviewed_by.full_name }} on {{ a.reviewed_at|date:"d M H:i" }}{% if a.note %}: {{ a.note }}{% endif %}</div>
+        {% endif %}
+      </div>
+    </div>
+    {% if a.status == "NEW" %}
+    <form method="post" action="{% url 'reports:anomaly_review' a.pk %}" class="d-flex gap-2 mt-2">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <input name="note" class="form-control form-control-sm" placeholder="Add a note (optional)">
+      <button class="btn btn-sm btn-outline-success">Reviewed</button>
+    </form>
+    {% endif %}
+  </li>
+  {% empty %}
+  <li class="list-group-item text-muted">Nothing here.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

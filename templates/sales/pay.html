@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Payment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h4 class="mb-3">Payment</h4>
+
+        <table class="table table-sm">
+          {% for item in items %}
+          <tr><td>{{ item.cereal.name }} ({{ item.quantity_kg|floatformat:3 }} kg)</td><td class="text-end">{{ item.line_total|floatformat:2 }}</td></tr>
+          {% endfor %}
+        </table>
+        <div class="d-flex justify-content-between fs-3 fw-bold mb-3">
+          <span>Total</span><span>KES {{ sale.total|floatformat:2 }}</span>
+        </div>
+
+        <div class="d-flex gap-2 mb-3">
+          <button type="button" class="btn btn-outline-secondary" id="allCash">All cash</button>
+          <button type="button" class="btn btn-outline-secondary" id="allMpesa">All M-Pesa</button>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div class="mb-3"><label class="form-label">{{ form.cash.label }}</label>{{ form.cash }}{{ form.cash.errors }}</div>
+          <div class="mb-3"><label class="form-label">{{ form.mpesa.label }}</label>{{ form.mpesa }}{{ form.mpesa.errors }}</div>
+          <div class="mb-3"><label class="form-label">{{ form.mpesa_ref.label }}</label>{{ form.mpesa_ref }}{{ form.mpesa_ref.errors }}</div>
+          <div class="mb-3"><label class="form-label">{{ form.card.label }}</label>{{ form.card }}{{ form.card.errors }}</div>
+          <button class="btn btn-success btn-lg w-100">Mark as paid</button>
+        </form>
+        <a href="{% url 'sales:new_sale' %}" class="btn btn-link w-100 mt-2">Back to sale</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  var total = "{{ sale.total|stringformat:'s' }}";
+  var cash = document.getElementById("id_cash");
+  var mpesa = document.getElementById("id_mpesa");
+  var card = document.getElementById("id_card");
+  document.getElementById("allCash").onclick = function () { cash.value = total; mpesa.value = ""; card.value = ""; };
+  document.getElementById("allMpesa").onclick = function () { mpesa.value = total; cash.value = ""; card.value = ""; document.getElementById("id_mpesa_ref").focus(); };
+</script>
+{% endblock %}

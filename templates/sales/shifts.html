@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Shifts{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Shifts &amp; Cash Counts</h3>
+<div class="card shadow-sm"><div class="table-responsive">
+  <table class="table table-sm align-middle mb-0">
+    <thead>
+      <tr>
+        <th>Employee</th><th>Clock in</th><th>Clock out</th><th>Hours</th>
+        <th class="text-end">Opening</th><th class="text-end">Expected</th><th class="text-end">Counted</th>
+        <th class="text-end">Difference</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in shifts %}
+      <tr>
+        <td>{{ s.employee.full_name }} ({{ s.employee.employee_id }})</td>
+        <td>{{ s.clock_in|date:"d M H:i" }}</td>
+        <td>{% if s.clock_out %}{{ s.clock_out|date:"d M H:i" }}{% else %}<span class="badge bg-info text-dark">Open</span>{% endif %}</td>
+        <td>{{ s.hours }}</td>
+        <td class="text-end">{{ s.opening_float|floatformat:2 }}</td>
+        {% if s.cash_count %}
+          <td class="text-end">{{ s.cash_count.expected_cash|floatformat:2 }}</td>
+          <td class="text-end">{{ s.cash_count.counted_cash|floatformat:2 }}</td>
+          <td class="text-end {% if s.cash_count.difference < 0 %}text-danger fw-bold{% elif s.cash_count.difference > 0 %}text-warning fw-bold{% endif %}">{{ s.cash_count.difference|floatformat:2 }}</td>
+        {% else %}
+          <td colspan="3" class="text-muted text-center">{% if s.closed_by_admin %}Closed by admin: {{ s.note }}{% else %}-{% endif %}</td>
+        {% endif %}
+        <td>
+          {% if not s.clock_out %}
+          <form method="post" action="{% url 'sales:force_close_shift' s.pk %}" class="d-flex gap-1">
+            {% csrf_token %}
+            <input name="reason" class="form-control form-control-sm" placeholder="Reason" required>
+            <button class="btn btn-sm btn-outline-danger">Close</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="9" class="text-muted">No shifts yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

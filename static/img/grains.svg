@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="0 0 520 520">
+  <defs>
+    <ellipse id="rice" rx="20" ry="6.5"/>
+    <path id="bean" d="M-17 -3 C-16 -13 9 -15 16 -5 C21 3 9 13 -2 9 C-8 7 -9 3 -17 -3 Z"/>
+    <ellipse id="lentil" rx="10" ry="8.5"/>
+    <path id="maize" d="M-9 -11 Q0 -15 9 -11 L6.5 10 Q0 14 -6.5 10 Z"/>
+    <g id="nut">
+      <ellipse cx="-8" cy="0" rx="9" ry="7.5"/>
+      <ellipse cx="8" cy="0.5" rx="9.5" ry="8"/>
+      <rect x="-8" y="-5" width="16" height="10"/>
+    </g>
+    <g id="millet">
+      <circle cx="0" cy="0" r="3.6"/>
+      <circle cx="9" cy="3" r="3.6"/>
+      <circle cx="-6" cy="8" r="3.6"/>
+      <circle cx="5" cy="12" r="3.6"/>
+    </g>
+  </defs>
+  <g fill="#000">
+    <use href="#rice" transform="translate(60 50) rotate(20)"/>
+    <use href="#bean" transform="translate(150 42) rotate(-30) scale(1.1)"/>
+    <use href="#maize" transform="translate(250 70) rotate(15)"/>
+    <use href="#lentil" transform="translate(340 42)"/>
+    <use href="#rice" transform="translate(430 82) rotate(-50)"/>
+    <use href="#nut" transform="translate(485 160) rotate(35)"/>
+    <use href="#millet" transform="translate(32 132)"/>
+    <use href="#bean" transform="translate(112 130) rotate(60)"/>
+    <use href="#rice" transform="translate(200 150) rotate(80)"/>
+    <use href="#maize" transform="translate(300 172) rotate(-20) scale(1.1)"/>
+    <use href="#lentil" transform="translate(392 150)"/>
+    <use href="#rice" transform="translate(440 232) rotate(10)"/>
+    <use href="#bean" transform="translate(62 232) rotate(-10)"/>
+    <use href="#nut" transform="translate(150 240) rotate(-40)"/>
+    <use href="#millet" transform="translate(236 244) rotate(20)"/>
+    <use href="#rice" transform="translate(330 262) rotate(55)"/>
+    <use href="#maize" transform="translate(410 312) rotate(30)"/>
+    <use href="#lentil" transform="translate(488 292) scale(1.1)"/>
+    <use href="#bean" transform="translate(40 322) rotate(100)"/>
+    <use href="#rice" transform="translate(122 342) rotate(-20)"/>
+    <use href="#maize" transform="translate(212 352) rotate(-60)"/>
+    <use href="#lentil" transform="translate(292 340)"/>
+    <use href="#nut" transform="translate(362 382) rotate(15)"/>
+    <use href="#rice" transform="translate(468 392) rotate(70)"/>
+    <use href="#millet" transform="translate(48 410) rotate(-15)"/>
+    <use href="#bean" transform="translate(150 440) rotate(20) scale(1.1)"/>
+    <use href="#rice" transform="translate(242 452) rotate(-35)"/>
+    <use href="#maize" transform="translate(332 468) rotate(50)"/>
+    <use href="#lentil" transform="translate(412 462)"/>
+    <use href="#bean" transform="translate(486 478) rotate(-70)"/>
+    <use href="#rice" transform="translate(88 490) rotate(85)"/>
+    <use href="#lentil" transform="translate(190 492)"/>
+  </g>
+</svg>

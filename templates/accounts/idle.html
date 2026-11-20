@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Ready{% endblock %}
+{% block body_class %}layout-public{% endblock %}
+
+{% block shell %}
+<main class="idle">
+  <header class="idle-top">
+    <div class="brand">
+      <span class="brand-mark">{{ shop_name|first }}</span>
+      <span class="brand-text">{{ shop_name }}</span>
+    </div>
+    <div class="text-end">
+      <div class="idle-time" id="bigClock">--:--</div>
+      <div class="idle-date" id="bigDate"></div>
+    </div>
+  </header>
+
+  <div class="idle-grid {% if not cereals %}solo{% endif %}">
+
+    <section class="sack">
+      {% include "_messages.html" %}
+      <h1 class="sack-title">Ready for the<br>next customer</h1>
+      <p class="sack-sub">Log in with your employee ID to start a sale or to clock in.</p>
+      <div class="sack-actions">
+        <a class="btn btn-primary btn-lg" href="{% url 'accounts:login' %}?next={% url 'sales:new_sale' %}"><i class="bi bi-bag-check me-2"></i>Start sale</a>
+        <a class="btn btn-outline-dark btn-lg" href="{% url 'accounts:login' %}?next={% url 'sales:clock' %}"><i class="bi bi-clock me-2"></i>Clock in or out</a>
+      </div>
+    </section>
+
+    {% if cereals %}
+    <section class="board" aria-label="Price list">
+      <h2 class="board-title">Today's prices</h2>
+      <div class="board-grid">
+        {% for c in cereals %}
+        <div class="board-item">
+          {% include "inventory/_cereal_icon.html" with cereal=c size=44 %}
+          <div class="board-name">{{ c.name }}</div>
+          <div class="board-price">KES {{ c.price_per_kg|floatformat:"-2g" }}<small>/kg</small></div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </div>
+
+  <footer class="idle-foot">Every kilo accounted for.</footer>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  function tick() {
+    var now = new Date();
+    document.getElementById("bigClock").textContent =
+      now.toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" });
+    document.getElementById("bigDate").textContent =
+      now.toLocaleDateString("en-KE", { weekday: "long", day: "numeric", month: "long" });
+  }
+  tick();
+  setInterval(tick, 15000);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Cereal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm"><div class="card-body p-4">
+      <h4 class="mb-3">{% if cereal %}Edit {{ cereal.name }}{% else %}Add a cereal{% endif %}</h4>
+      {% if cereal %}
+        <div class="mb-3">{% include "inventory/_cereal_icon.html" with cereal=cereal size=72 %}</div>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_div }}
+        <button class="btn btn-primary mt-3">Save</button>
+        <a href="{% url 'inventory:cereals' %}" class="btn btn-link mt-3">Cancel</a>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

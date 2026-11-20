@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Stock Counts{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Stock count</h3>
+<p class="text-muted">Weigh what is physically on the shelf and enter it. Leave a row empty to skip it. Differences are flagged, and system stock is then adjusted to match your count.</p>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="card shadow-sm mb-3"><div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead><tr><th>Cereal</th><th class="text-end">System says (kg)</th><th style="width: 220px;">Counted (kg)</th></tr></thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.cereal.name }}</td>
+          <td class="text-end">{{ r.expected|floatformat:3 }}</td>
+          <td><input type="number" step="0.001" min="0" name="count_{{ r.cereal.pk }}" class="form-control"></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-muted">No cereals yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div></div>
+  <div class="row g-2">
+    <div class="col-md-6"><input name="note" class="form-control" placeholder="Note (optional)"></div>
+    <div class="col-auto"><button class="btn btn-primary">Save counts</button></div>
+  </div>
+</form>
+
+<h5 class="mt-5 mb-2">Recent counts</h5>
+<div class="card shadow-sm"><div class="table-responsive">
+  <table class="table table-sm mb-0">
+    <thead><tr><th>When</th><th>Cereal</th><th class="text-end">Expected</th><th class="text-end">Counted</th><th class="text-end">Difference</th><th>By</th></tr></thead>
+    <tbody>
+      {% for c in recent %}
+      <tr>
+        <td>{{ c.created_at|date:"d M H:i" }}</td>
+        <td>{{ c.cereal.name }}</td>
+        <td class="text-end">{{ c.expected_kg|floatformat:3 }}</td>
+        <td class="text-end">{{ c.counted_kg|floatformat:3 }}</td>
+        <td class="text-end {% if c.difference_kg < 0 %}text-danger fw-bold{% endif %}">{{ c.difference_kg|floatformat:3 }}</td>
+        <td>{{ c.counted_by.employee_id }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="text-muted">No counts yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

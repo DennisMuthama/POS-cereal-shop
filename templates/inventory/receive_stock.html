@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+{% block title %}Receive Stock{% endblock %}
+
+{% block content %}
+<style>
+  .cereal-card, .new-card { cursor: pointer; border: 2px solid transparent; transition: transform .1s; }
+  .cereal-card:hover, .new-card:hover { transform: translateY(-2px); }
+  .cereal-card.selected { border-color: var(--bs-success); background: #f0fff4; }
+  .new-card { border: 2px dashed var(--bs-primary); background: #f5f9ff; }
+  .new-card.selected { border-style: solid; background: #e7f1ff; }
+  .errorlist { color: #dc3545; list-style: none; padding: 0; margin: .25rem 0 0; font-size: .875rem; }
+</style>
+
+<div class="row g-4">
+
+  <!-- LEFT: find and pick the cereal -->
+  <div class="col-lg-7">
+    <h4 class="mb-3">Receive stock</h4>
+    <input id="search" class="form-control form-control-lg mb-3" autocomplete="off" autofocus
+           placeholder="Type a cereal: maize, unga, beans... (Enter picks the first match)">
+
+    <div class="btn-group flex-wrap mb-3" id="tabs">
+      <button type="button" class="btn btn-outline-secondary btn-sm active" data-cat="">All</button>
+      {% for code, label in categories %}
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-cat="{{ code }}">{{ label }}</button>
+      {% endfor %}
+    </div>
+
+    <div class="row row-cols-2 row-cols-md-3 g-3" id="grid">
+
+      <!-- Always-visible "new cereal" card -->
+      <div class="col">
+        <div class="card new-card shadow-sm h-100 text-center p-2" id="newCard">
+          <div class="py-2" style="font-size: 44px; line-height: 1;">&#10133;</div>
+          <div class="fw-semibold text-primary">Add new cereal</div>
+          <small class="text-muted">Not in the list?</small>
+        </div>
+      </div>
+
+      {% for c in cereals %}
+      <div class="col cereal-col" data-cat="{{ c.category }}"
+           data-search="{{ c.name|lower }} {{ c.swahili_name|lower }}">
+        <div class="card cereal-card shadow-sm h-100 text-center p-2"
+             data-id="{{ c.pk }}" data-name="{{ c.name }}" data-price="{{ c.price_per_kg }}"
+             data-cost="{{ c.last_cost }}" data-shelf="{{ c.shelf_life_days }}"
+             data-stock="{{ c.stock_now|floatformat:3 }}" data-active="{% if c.is_active %}1{% else %}0{% endif %}">
+          <div class="icon-wrap py-2">{% include "inventory/_cereal_icon.html" with cereal=c size=56 %}</div>
+          <div class="fw-semibold">{{ c.name }}</div>
+          {% if c.swahili_name %}<small class="text-muted">{{ c.swahili_name }}</small>{% endif %}
+          <div class="mt-1">
+            {% if c.is_active %}
+              <small class="text-success">{{ c.stock_now|floatformat:1 }} kg in stock</small>
+            {% else %}
+              <span class="badge bg-secondary">Not stocked yet</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="noMatch" class="d-none mt-3">
+      <div class="text-muted mb-2">No cereal matches what you typed.</div>
+      <button type="button" class="btn btn-primary" id="addFromSearch"></button>
+    </div>
+  </div>
+
+  <!-- RIGHT: quantity and prices -->
+  <div class="col-lg-5">
+    <div class="card shadow-sm position-sticky" style="top: 1rem;">
+      <div class="card-body p-4">
+
+        <div id="placeholder" class="text-center text-muted py-5">
+          <div style="font-size: 48px;">&#128072;</div>
+          Pick a cereal on the left, or add a new one.
+        </div>
+
+        <form method="post" id="stockForm" class="d-none">
+          {% csrf_token %}
+          {{ form.cereal }}
+          {{ form.cereal.errors }}
+          {{ form.non_field_errors }}
+
+          <!-- Existing cereal header -->
+          <div id="selHeader" class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+            <div id="selIcon"></div>
+            <div>
+              <div class="fs-5 fw-bold" id="selName"></div>
+              <small class="text-muted" id="selInfo"></small>
+            </div>
+          </div>
+
+          <!-- New cereal details -->
+          <div id="newBlock" class="d-none mb-3 pb-3 border-bottom">
+            <div class="fw-bold text-primary mb-2">New cereal <small class="text-muted fw-normal">(saved to your catalogue)</small></div>
+
+            <div class="mb-2">
+              <label class="form-label" for="id_new_name">Cereal name</label>
+              {{ form.new_name }}
+              {{ form.new_name.errors }}
+            </div>
+
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label" for="id_new_category">Category</label>
+                {{ form.new_category }}
+              </div>
+              <div class="col-6">
+                <label class="form-label" for="id_new_shelf_life">Shelf life (days)</label>
+                {{ form.new_shelf_life }}
+                {{ form.new_shelf_life.errors }}
+              </div>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label" for="id_new_swahili_name">Local / Swahili name (optional)</label>
+              {{ form.new_swahili_name }}
+            </div>
+
+            <div class="mb-1">
+              <label class="form-label" for="id_new_icon">Icon</label>
+              <div class="d-flex flex-wrap gap-1 mb-1">
+                {% for e in "🌾🌽🍚🫘🌱🥜🥣🍞🍠🌰" %}
+                  <button type="button" class="btn btn-outline-secondary btn-sm emoji" data-icon="{{ e }}">{{ e }}</button>
+                {% endfor %}
+              </div>
+              {{ form.new_icon }}
+              <small class="text-muted">Pick one, or leave blank for a default. Add a photo later under Cereals &amp; Prices.</small>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="id_quantity_kg">How many kg arrived?</label>
+            {{ form.quantity_kg }}
+            {{ form.quantity_kg.errors }}
+            <div class="d-flex flex-wrap gap-1 mt-2">
+              <button type="button" class="btn btn-outline-success btn-sm quick" data-add="10">+10</button>
+              <button type="button" class="btn btn-outline-success btn-sm quick" data-add="25">+25</button>
+              <button type="button" class="btn btn-outline-success btn-sm quick" data-add="50">+50</button>
+              <button type="button" class="btn btn-outline-success btn-sm quick" data-add="90">+90 (bag)</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="clearQty">Clear</button>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="form-label" for="id_cost_price_per_kg">{{ form.cost_price_per_kg.label }}</label>
+              {{ form.cost_price_per_kg }}
+              {{ form.cost_price_per_kg.errors }}
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="id_selling_price">{{ form.selling_price.label }}</label>
+              {{ form.selling_price }}
+              {{ form.selling_price.errors }}
+            </div>
+          </div>
+
+          <div class="row g-3 mb-2">
+            <div class="col-6">
+              <label class="form-label" for="id_received_date">Received on</label>
+              {{ form.received_date }}
+              {{ form.received_date.errors }}
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="id_expiry_date">Expiry (optional)</label>
+              {{ form.expiry_date }}
+              {{ form.expiry_date.errors }}
+            </div>
+          </div>
+          <small class="text-muted d-block mb-3" id="expiryHint"></small>
+
+          <button class="btn btn-success btn-lg w-100" id="saveBtn">Save delivery</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  var cols = document.querySelectorAll(".cereal-col");
+  var newCard = document.getElementById("newCard");
+  var search = document.getElementById("search");
+  var noMatch = document.getElementById("noMatch");
+  var addFromSearch = document.getElementById("addFromSearch");
+  var hidden = document.getElementById("id_cereal");
+  var form = document.getElementById("stockForm");
+  var placeholder = document.getElementById("placeholder");
+  var selHeader = document.getElementById("selHeader");
+  var newBlock = document.getElementById("newBlock");
+  var saveBtn = document.getElementById("saveBtn");
+
+  var nName = document.getElementById("id_new_name");
+  var nLocal = document.getElementById("id_new_swahili_name");
+  var nIcon = document.getElementById("id_new_icon");
+  var nShelf = document.getElementById("id_new_shelf_life");
+
+  var qty = document.getElementById("id_quantity_kg");
+  var cost = document.getElementById("id_cost_price_per_kg");
+  var price = document.getElementById("id_selling_price");
+  var received = document.getElementById("id_received_date");
+  var expiry = document.getElementById("id_expiry_date");
+  var hint = document.getElementById("expiryHint");
+
+  var activeCat = "";
+  var shelfDays = 0;
+
+  function titleCase(s) {
+    return s.replace(/\w\S*/g, function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); });
+  }
+
+  function applyFilter() {
+    var q = search.value.trim().toLowerCase();
+    var shown = 0;
+    cols.forEach(function (col) {
+      var okQ = !q || col.dataset.search.indexOf(q) !== -1;
+      var okC = !activeCat || col.dataset.cat === activeCat;
+      var visible = okQ && okC;
+      col.classList.toggle("d-none", !visible);
+      if (visible) { shown++; }
+    });
+    var raw = search.value.trim();
+    addFromSearch.textContent = raw ? 'Add "' + raw + '" as a new cereal' : "Add a new cereal";
+    noMatch.classList.toggle("d-none", shown > 0);
+  }
+
+  function updateHint() {
+    if (!shelfDays || !received.value || expiry.value) { hint.textContent = ""; return; }
+    var d = new Date(received.value);
+    d.setDate(d.getDate() + shelfDays);
+    hint.textContent = "Expiry will be set to about " + d.toDateString() + " (" + shelfDays + " day shelf life).";
+  }
+
+  function showForm() {
+    placeholder.classList.add("d-none");
+    form.classList.remove("d-none");
+  }
+
+  function clearSelection() {
+    document.querySelectorAll(".cereal-card.selected").forEach(function (c) { c.classList.remove("selected"); });
+    newCard.classList.remove("selected");
+  }
+
+  // ---- existing cereal ----
+  function selectCard(card, prefill) {
+    clearSelection();
+    card.classList.add("selected");
+    hidden.value = card.dataset.id;
+    shelfDays = parseInt(card.dataset.shelf, 10) || 0;
+
+    newBlock.classList.add("d-none");
+    selHeader.classList.remove("d-none");
+    nName.value = ""; nLocal.value = ""; nIcon.value = "";
+
+    document.getElementById("selName").textContent = card.dataset.name;
+    var p = parseFloat(card.dataset.price) || 0;
+    document.getElementById("selInfo").textContent = card.dataset.active === "1"
+      ? card.dataset.stock + " kg in stock now"
+      : "Not stocked yet. Set its selling price below.";
+    document.getElementById("selIcon").innerHTML = card.querySelector(".icon-wrap").innerHTML;
+
+    price.required = !(p > 0);
+    if (prefill) {
+      price.value = p > 0 ? p.toFixed(2) : "";
+      if (card.dataset.cost) { cost.value = parseFloat(card.dataset.cost).toFixed(2); }
+    }
+
+    saveBtn.textContent = "Save delivery";
+    showForm();
+    updateHint();
+    if (prefill) { qty.focus(); }
+  }
+
+  // ---- brand-new cereal ----
+  // name === false means "keep whatever is already typed" (used after a form error)
+  function startNew(name) {
+    clearSelection();
+    newCard.classList.add("selected");
+    hidden.value = "";
+    selHeader.classList.add("d-none");
+    newBlock.classList.remove("d-none");
+    if (typeof name === "string") { nName.value = name; }
+    price.required = true;
+    shelfDays = parseInt(nShelf.value, 10) || 180;
+    saveBtn.textContent = "Add cereal and save delivery";
+    showForm();
+    updateHint();
+    if (typeof name === "string") {
+      if (!nName.value.trim()) { nName.focus(); } else { qty.focus(); }
+    }
+  }
+
+  document.querySelectorAll(".cereal-card").forEach(function (card) {
+    card.addEventListener("click", function () { selectCard(card, true); });
+  });
+
+  newCard.addEventListener("click", function () { startNew(titleCase(search.value.trim())); });
+  addFromSearch.addEventListener("click", function () { startNew(titleCase(search.value.trim())); });
+
+  search.addEventListener("input", applyFilter);
+  search.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") { return; }
+    e.preventDefault();
+    var first = document.querySelector(".cereal-col:not(.d-none) .cereal-card");
+    if (first) {
+      selectCard(first, true);
+    } else if (search.value.trim()) {
+      startNew(titleCase(search.value.trim()));
+    }
+  });
+
+  document.querySelectorAll("#tabs button").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll("#tabs button").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      activeCat = btn.dataset.cat;
+      applyFilter();
+    });
+  });
+
+  document.querySelectorAll(".emoji").forEach(function (btn) {
+    btn.addEventListener("click", function () { nIcon.value = btn.dataset.icon; });
+  });
+
+  document.querySelectorAll(".quick").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var current = parseFloat(qty.value) || 0;
+      qty.value = Math.round((current + parseFloat(btn.dataset.add)) * 1000) / 1000;
+    });
+  });
+  document.getElementById("clearQty").addEventListener("click", function () { qty.value = ""; qty.focus(); });
+
+  nShelf.addEventListener("input", function () {
+    if (!newBlock.classList.contains("d-none")) { shelfDays = parseInt(nShelf.value, 10) || 180; updateHint(); }
+  });
+  received.addEventListener("change", updateHint);
+  expiry.addEventListener("change", updateHint);
+
+  applyFilter();
+
+  // After a form error the page reloads: reopen the same mode without overwriting what was typed.
+  if (nName.value.trim()) {
+    startNew(false);
+  } else if (hidden.value) {
+    var again = document.querySelector('.cereal-card[data-id="' + hidden.value + '"]');
+    if (again) { selectCard(again, false); }
+  }
+})();
+</script>
+{% endblock %}

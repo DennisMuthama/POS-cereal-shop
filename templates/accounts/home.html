@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4>Welcome, {{ user.full_name }}</h4>
+    <p class="mb-1">Role: {{ user.get_role_display }}</p>
+    <p class="text-muted">Login works. The sales screen (cashier) and dashboard (owner) will replace this page.</p>
+    {% if user.is_owner %}
+      <a href="/admin/" class="btn btn-dark">Open admin site</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

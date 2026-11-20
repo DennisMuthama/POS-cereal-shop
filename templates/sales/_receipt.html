@@ -1,0 +1,53 @@
+<div class="card shadow-sm mx-auto" style="max-width: 440px;">
+  <div class="card-body font-monospace">
+    <div class="text-center mb-3">
+      <h5 class="mb-0">{{ shop_name }}</h5>
+      <small>SALES RECEIPT</small>
+    </div>
+
+    {% if sale.status == "VOID" %}
+      <div class="alert alert-danger py-2 text-center mb-2">
+        VOIDED{% if sale.void_reason %}: {{ sale.void_reason }}{% endif %}
+      </div>
+    {% endif %}
+
+    <div class="small mb-2">
+      <div>Receipt: <strong>{{ sale.receipt_no }}</strong></div>
+      <div>Date: {{ sale.paid_at|date:"d M Y, H:i" }}</div>
+      <div>Cashier: {{ sale.employee.employee_id }} ({{ sale.employee.full_name }})</div>
+      <div>Tax invoice ref: {% if sale.tax_invoice_ref %}{{ sale.tax_invoice_ref }}{% else %}Pending (KRA eTIMS){% endif %}</div>
+    </div>
+
+    <table class="table table-sm mb-2">
+      <thead>
+        <tr><th>Cereal</th><th class="text-end">Kg</th><th class="text-end">Price</th><th class="text-end">Total</th></tr>
+      </thead>
+      <tbody>
+        {% for item in sale.items.all %}
+        <tr>
+          <td>{{ item.cereal.name }}</td>
+          <td class="text-end">{{ item.quantity_kg|floatformat:3 }}</td>
+          <td class="text-end">{{ item.unit_price|floatformat:2 }}</td>
+          <td class="text-end">{{ item.line_total|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="d-flex justify-content-between fs-5 fw-bold border-top pt-2">
+      <span>TOTAL</span><span>KES {{ sale.total|floatformat:2 }}</span>
+    </div>
+
+    <div class="small mt-2">
+      <div class="fw-bold">Paid by:</div>
+      {% for p in sale.payments.all %}
+        <div class="d-flex justify-content-between">
+          <span>{{ p.get_method_display }}{% if p.reference %} ({{ p.reference }}){% endif %}</span>
+          <span>{{ p.amount|floatformat:2 }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center small mt-3">Thank you for shopping with us.</div>
+  </div>
+</div>

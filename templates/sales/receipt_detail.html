@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ sale.receipt_no }}{% endblock %}
+
+{% block content %}
+{% include "sales/_receipt.html" %}
+
+<div class="mx-auto mt-3 no-print" style="max-width: 440px;">
+  <button class="btn btn-outline-dark" onclick="window.print()">Print</button>
+  <a href="{% url 'sales:receipts' %}" class="btn btn-link">Back to receipts</a>
+
+  {% if user.is_owner and sale.status == "PAID" %}
+  <form method="post" action="{% url 'sales:void_sale' sale.pk %}" class="mt-3 d-flex gap-2">
+    {% csrf_token %}
+    <input name="reason" class="form-control" placeholder="Reason for voiding" required>
+    <button class="btn btn-outline-danger" onclick="return confirm('Void this sale and return the stock?');">Void</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

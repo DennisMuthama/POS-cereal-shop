@@ -103,7 +103,7 @@ A distinct visual identity built around the shop itself: **hessian sack texture,
 <table>
   <tr>
     <td width="50%"><img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 135542.png" alt="Owner dashboard"><br><sub><b>Owner dashboard.</b> Period toggle, sales, payment split, trend, flags, stock health.</sub></td>
-    <td width="50%"><img src="docs/screenshots/05-new-sale.png" alt="Sale screen"><br><sub><b>Sale screen.</b> Popular cereals, weight entry, running total.</sub></td>
+    <td width="50%"><img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 140047.png" alt="Sale screen"><br><sub><b>Sale screen.</b> Popular cereals, weight entry, running total.</sub></td>
   </tr>
   <tr>
     <td width="50%"><img src="docs/screenshots/04-receive-stock.png" alt="Receive stock"><br><sub><b>Receive stock.</b> Searchable cereal cards, quick-add weights, new cereals added inline.</sub></td>

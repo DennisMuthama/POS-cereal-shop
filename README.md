@@ -363,7 +363,7 @@ Being honest about what the system can and cannot prove today:
 
 ## Author
 
-**Dennis Muthama**, software engineering student at Multimedia University of Kenya, based in Nairobi. Backend developer focused on Python and Django.
+**Dennis Muthama**, software engineering graduate Multimedia University of Kenya, based in Nairobi. Backend developer focused on Python and Django.
 
 [GitHub](https://github.com/DennisMuthama) | [LinkedIn](https://linkedin.com/in/dennismuthama) | [Portfolio](https://dennismuthama.github.io/DennisMuthama-PORTFOLIO)
 

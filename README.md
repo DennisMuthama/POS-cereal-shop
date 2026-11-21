@@ -122,8 +122,7 @@ A distinct visual identity built around the shop itself: **hessian sack texture,
 <div align="center">
   <img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 135835.png" alt="Login" width="46%">
   &nbsp;
-  <img src="docs/screenshots/11-mobile.png" alt="Mobile layout" width="22%">
-  <br><sub><b>Employee login</b> and the <b>mobile layout</b>.</sub>
+  <br><sub><b>Employee login</b>
 </div>
 
 ---

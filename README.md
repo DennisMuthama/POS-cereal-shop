@@ -41,7 +41,7 @@ and flags cash and stock discrepancies so the owner can see problems at a glance
 
 ## The problem
 
-Small cereal shops sell by weight, take a mix of cash and M-Pesa, and usually run on a notebook or a generic till app. That makes it hard to answer the owner's real questions:
+Small cereal shops sell by weight, take a mix of cash and M-Pesa, and usually run on a notebook. That makes it hard to answer the owner's real questions:
 
 - *Who sold what, and when?*
 - *Is the till short, and on whose shift?*

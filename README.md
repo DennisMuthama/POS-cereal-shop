@@ -111,7 +111,7 @@ A distinct visual identity built around the shop itself: **hessian sack texture,
   </tr>
   <tr>
     <td width="50%"><img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 140529.png" alt="Receipt"><br><sub><b>Receipt.</b> Unique number, cashier, lines, payment breakdown, tax invoice reference.</sub></td>
-    <td width="50%"><img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 140419.png" alt="Anomalies"><br><sub><b>Admin Analytics</b>Shows Admin exclusive data monitoring every aspect of the business from:sales,anomalies,receipts,daily,weeky,monthly & yearly breakdowns. Period toggle, sales, payment split, trend, flags, stock health.</sub></td>
+    <td width="50%"><img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 140419.png" alt="Anomalies"><br><sub><b>Admin Analytics</b>Period toggle, sales, payment split, trend, flags, stock health.</sub></td>
   </tr>
   <tr>
     <td width="50%"><img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 144252.png" alt="Stock overview"><br><sub><b>Stock overview.</b> Health badges and batches with expiry status.</sub></td>

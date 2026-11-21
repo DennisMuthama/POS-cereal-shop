@@ -107,7 +107,7 @@ A distinct visual identity built around the shop itself: **hessian sack texture,
   </tr>
   <tr>
     <td width="50%"><img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 140503.png" alt="Receive stock"><br><sub><b>Receive stock.</b> Searchable cereal cards, quick-add weights, new cereals added inline.</sub></td>
-    <td width="50%"><img src="docs/screenshots/06-payment.png" alt="Payment screen"><br><sub><b>Payment.</b> Cash, M-Pesa, card or split, with M-Pesa code checks.</sub></td>
+    <td width="50%"><img src="screenshots/Screenshot 2026-11-21 144543.png" alt="Payment screen"><br><sub><b>Payment.</b> Cash, M-Pesa, card or split, with M-Pesa code checks.</sub></td>
   </tr>
   <tr>
     <td width="50%"><img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 140529.png" alt="Receipt"><br><sub><b>Receipt.</b> Unique number, cashier, lines, payment breakdown, tax invoice reference.</sub></td>

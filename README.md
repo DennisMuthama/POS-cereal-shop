@@ -14,7 +14,7 @@ and flags cash and stock discrepancies so the owner can see problems at a glance
 ![SQLite](https://img.shields.io/badge/SQLite-dev-003B57?logo=sqlite&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-<img src="docs/screenshots/01-idle-screen.png" alt="Cereal POS idle screen with hessian sack label and live price board" width="92%">
+<img src="screenshots/POS-cereal shop screenshots/Screenshot 2026-11-21 135542.png" alt="Cereal POS idle screen with hessian sack label and live price board" width="92%">
 
 </div>
 
